@@ -47,3 +47,9 @@ router.post("/user/register", userController.userRegister);
  */
 router.post("/user/login", userController.userLogin);
 // url = http://localhost:3000/user/login
+
+//test route
+router.delete("/user/delete/:email", userController.userDelete);
+// real route with token
+// router.delete("/user/delete/:email", verifyToken, userController.userDelete);
+// url = http://localhost:3000/user/delete/:email
