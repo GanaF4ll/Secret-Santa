@@ -48,6 +48,25 @@ router.post("/user/register", userController.userRegister);
 router.post("/user/login", userController.userLogin);
 // url = http://localhost:3000/user/login
 
+/**
+ * @swagger
+ * /user/delete/{email}:
+ *  delete:
+ *      summary: Deletes a user.
+ *      requestBody:
+ *          required: true
+ *          content:
+ *          application/json:
+ *              example: secret@santa.com
+ *              password: "secret"
+ *      responses:
+ *          200:
+ *              description: Request successful.
+ *              content:
+ *                  application/json:
+ *                      example:
+ *                          message: 'User deleted : ${user.email}'
+ */
 //test route
 router.delete("/user/delete/:email", userController.userDelete);
 // real route with token
