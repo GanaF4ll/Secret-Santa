@@ -6,7 +6,7 @@ const app = express();
 const port = 3000;
 const userRoute = require("./routes/userRoute");
 
-mongoose.connect("mongodb://127.0.0.1:27017/timer");
+mongoose.connect("mongodb://127.0.0.1:27017/SecretSanta");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
