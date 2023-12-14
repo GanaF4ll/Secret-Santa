@@ -28,7 +28,7 @@ router.post("/user/register", userController.userRegister);
 
 /**
  * @swagger
- * /user/register:
+ * /user/login:
  *  post:
  *      summary: Allows a user to log in.
  *      requestBody:
@@ -72,6 +72,37 @@ router.delete("/user/delete/:email", userController.userDelete);
 // real route with token
 // router.delete("/user/delete/:email", verifyToken, userController.userDelete);
 // url = http://localhost:3000/user/delete/:email
+
+/**
+ * @swagger
+ * /user/update/{email}:
+ *   put:
+ *     summary: Allows the user to modify his email (token).
+ *     headers:
+ *       Authorization:
+ *         description: JWT_KEY
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         description: User email updated.
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             email: secret@santa.com
+ *             password: "secret"
+ *     responses:
+ *       200:
+ *         description: Request successful.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: 'Email updated ${email}'
+ */
 
 // test route
 router.put("/user/update/:email", userController.userUpdate);
