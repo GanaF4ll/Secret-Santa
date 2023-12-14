@@ -24,3 +24,7 @@ const { verifyToken } = require("../middlewares/jwtMiddleware");
  *                          message: 'User created: ${user.mail}'
  */
 router.post("/user/register", userController.userRegister);
+// url = http://localhost:3000/user/register
+
+router.post("/user/login", userController.userLogin);
+// url = http://localhost:3000/user/login
