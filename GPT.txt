@@ -1,0 +1,23 @@
+est-ce que ce controller est correct ? => exports.userLogin = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
+      res.status(401).json({ message: "incorrect email or password" });
+      return;
+    }
+    const userData = {
+      id: user._id,
+      email: user.email,
+      role: "admin",
+    };
+    const token = jwt.sign(userData, process.env.JWT_KEY, {
+      expiresIn: "48h", //token duration
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "An error occured during the connexion attempt" });
+  }
+};

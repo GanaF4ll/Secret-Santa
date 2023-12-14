@@ -24,22 +24,26 @@ exports.userLogin = async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
 
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-      res.status(401).json({ message: "incorrect email or password" });
+      res.status(401).json({ message: "Incorrect email or password" });
       return;
     }
+
     const userData = {
       id: user._id,
       email: user.email,
-      role: "admin",
+      role: user.role, // Assuming you have a 'role' property in your user schema
     };
+
     const token = jwt.sign(userData, process.env.JWT_KEY, {
-      expiresIn: "48h", //token duration
+      expiresIn: "48h", // Token duration
     });
+
+    res.json({ token });
   } catch (error) {
     console.error(error);
     res
       .status(500)
-      .json({ message: "An error occured during the connexion attempt" });
+      .json({ message: "An error occurred during the connection attempt" });
   }
 };
 
