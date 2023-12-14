@@ -53,3 +53,5 @@ router.delete("/user/delete/:email", userController.userDelete);
 // real route with token
 // router.delete("/user/delete/:email", verifyToken, userController.userDelete);
 // url = http://localhost:3000/user/delete/:email
+
+module.exports = router;
