@@ -73,4 +73,10 @@ router.delete("/user/delete/:email", userController.userDelete);
 // router.delete("/user/delete/:email", verifyToken, userController.userDelete);
 // url = http://localhost:3000/user/delete/:email
 
+// test route
+router.put("/user/update/:email", userController.userUpdate);
+// real route
+// router.put("/user/update/:email", verifyToken, userController.userUpdate);
+// url = http://localhost:3000/user/update/:email
+
 module.exports = router;
