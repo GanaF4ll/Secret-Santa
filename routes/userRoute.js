@@ -26,5 +26,24 @@ const { verifyToken } = require("../middlewares/jwtMiddleware");
 router.post("/user/register", userController.userRegister);
 // url = http://localhost:3000/user/register
 
+/**
+ * @swagger
+ * /user/register:
+ *  post:
+ *      summary: Allows a user to log in.
+ *      requestBody:
+ *          required: true
+ *          content:
+ *          application/json:
+ *              example: secret@santa.com
+ *              password: "secret"
+ *      responses:
+ *          200:
+ *              description: Request successful.
+ *              content:
+ *                  application/json:
+ *                      example:
+ *                          message: 'json{token}'
+ */
 router.post("/user/login", userController.userLogin);
 // url = http://localhost:3000/user/login
