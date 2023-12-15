@@ -13,5 +13,6 @@ let InvitationSchema = new Schema({
   updated_at: { type: Date, default: Date.now },
 });
 
-const Invitation = mongoose.model("InvitationSchema", InvitationSchema);
+const Invitation = mongoose.model("Invitation", InvitationSchema);
+
 module.exports = Invitation;

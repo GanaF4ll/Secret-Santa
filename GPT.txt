@@ -98,3 +98,209 @@ je veux que le controller createAgroup prenne les ID dans invitedUsers, et crée
 Invitation pour chaque ID dans le tableau newGroup.invitedUsers, il faut que le 
 newInvitation prenne aussi la valeur de newGroup.admin_id pour son admin_id pour chacun des Schema Invitation crée et pareil pour le group_name qui doit 
 avoir la valeur de newGroup.name
+
+
+
+
+#3
+lorsque j'utilise ce controller:
+exports.createInvitation = async (req, res) => {
+  try {
+    const { user_id } = req.body;
+    const group_id = req.params.group_id;
+
+    console.log("UserID from token:", req.user.id);
+    console.log("Group ID from params:", group_id);
+
+    const invitedUser = await User.findById(user_id);
+
+    if (!invitedUser) {
+      res.status(404).json({ message: "Utilisateur non trouvé" });
+      return;
+    }
+
+    // Retrieve the group based on the group_id
+    const group = await Group.findById(group_id);
+
+    if (!group) {
+      res.status(404).json({ message: "Groupe non trouvé" });
+      return;
+    }
+
+    // Verify if the ID in the token = Group.admin_id
+    if (req.user.id !== group.admin_id.toString()) {
+      console.log("Mismatch: User ID in token does not match Group admin_id");
+      res.status(403).json({
+        message: "Non autorisé à créer des invitations pour ce groupe",
+      });
+      return;
+    }
+
+    const tokenPayload = {
+      invitedUserId: user_id,
+      group_id,
+    };
+
+    // Generates a token for the invited user
+    const token = jwt.sign(tokenPayload, process.env.JWT_KEY, {
+      expiresIn: "48h",
+    });
+
+    const newInvitation = new Invitation({
+      group_id,
+      admin_id: req.user.id, // Uses the ID in the token
+      invitedUsers: [user_id],
+      token,
+    });
+
+    const savedInvitation = await newInvitation.save();
+
+    res.status(201).json({ invitation: savedInvitation });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+
+avec ce middleware:
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+const User = require("../models/userModel");
+const Group = require("../models/groupModel");
+const Invitation = require("../models/invitationModel");
+
+exports.verifyAdminToken = async (req, res, next) => {
+  try {
+    const token = req.headers["authorization"];
+
+    if (token !== undefined) {
+      const payload = await new Promise((resolve, reject) => {
+        jwt.verify(token, process.env.JWT_KEY, (error, decoded) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(decoded);
+          }
+        });
+      });
+
+      req.user = {
+        id: payload.user_id,
+        email: payload.email,
+        role: payload.role,
+      };
+
+      // Vérifie si l'utilisateur a le même ID que l'admin_id du groupe
+      if (req.user.id !== req.params.admin_id) {
+        res.status(403).json({
+          message:
+            "Unauthorized access: user does not have permission for this action",
+        });
+        return;
+      }
+
+      next();
+    } else {
+      res.status(403).json({ message: "Unauthorized access: missing token" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(403).json({ message: "Unauthorized access: invalid token" });
+  }
+};
+
+et que j'utilise le token généré par ce controller pour l'admin: 
+exports.createAGroup = async (req, res) => {
+  try {
+    const admin_id = req.user.id;
+    const user = await User.findById(admin_id);
+
+    if (!user) {
+      res.status(404).json({ message: "Utilisateur non trouvé" });
+      return;
+    }
+
+    const newGroup = new Group({
+      admin_id,
+      invitedUsers: req.body.invitedUsers,
+      name: req.body.name,
+    });
+
+    try {
+      const savedGroup = await newGroup.save();
+
+      // Crée une invitationSchema pour l'administrateur
+      const adminTokenPayload = {
+        invitedUserId: admin_id,
+        group_id: savedGroup._id,
+      };
+
+      // Génère un token pour l'administrateur
+      const adminToken = jwt.sign(adminTokenPayload, process.env.JWT_KEY, {
+        expiresIn: "48h", // Durée du token
+      });
+
+      const adminInvitation = new Invitation({
+        group_id: savedGroup._id,
+        group_name: savedGroup.name,
+        admin_id,
+        invitedUsers: [admin_id],
+        token: adminToken,
+      });
+
+      const savedAdminInvitation = await adminInvitation.save();
+
+      // Crée des invitationSchema pour chaque invitedUserId
+      const invitations = await Promise.all(
+        req.body.invitedUsers.map(async (invitedUserId) => {
+          const invitedUser = await User.findById(invitedUserId);
+
+          if (!invitedUser) {
+            // Si user_id n'existe pas
+            return null;
+          }
+
+          const tokenPayload = {
+            invitedUserId,
+            group_id: savedGroup._id,
+          };
+
+          // Génère un token pour chaque invitedUser
+          const token = jwt.sign(tokenPayload, process.env.JWT_KEY, {
+            expiresIn: "48h", // Durée du token
+          });
+
+          const newInvitation = new Invitation({
+            group_id: savedGroup._id,
+            group_name: savedGroup.name,
+            admin_id,
+            invitedUsers: [invitedUserId],
+            token,
+          });
+
+          return newInvitation.save();
+        })
+      );
+
+      res.status(201).json({
+        group: savedGroup,
+        invitations: [savedAdminInvitation, ...invitations],
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server Error" });
+    }
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Erreur serveur (utilisateur inexistant)." });
+  }
+};
+
+j'obtiens: {
+    "message": "Non autorisé à créer des invitations pour ce groupe"
+}
+alors que le token de l'admin est censé retourné le même id que l'id instancié dans group.admin_id
