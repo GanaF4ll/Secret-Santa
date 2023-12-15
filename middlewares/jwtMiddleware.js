@@ -17,13 +17,18 @@ exports.verifyToken = async (req, res, next) => {
         });
       });
 
-      req.user = payload;
+      req.user = {
+        id: payload.id,
+        email: payload.email,
+        role: payload.role,
+      };
+
       next();
     } else {
       res.status(403).json({ message: "Unauthorized access: missing token" });
     }
   } catch (error) {
     console.log(error);
-    res.status(403).json({ message: "Unauthorized access: unvalid token" });
+    res.status(403).json({ message: "Unauthorized access: invalid token" });
   }
 };

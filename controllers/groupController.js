@@ -5,7 +5,7 @@ require("dotenv").config();
 
 exports.createAGroup = async (req, res) => {
   try {
-    const admin_id = req.params.user_id;
+    const admin_id = req.user.id;
     const user = await User.findById(admin_id);
 
     if (!user) {
@@ -29,6 +29,8 @@ exports.createAGroup = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error server (User doesn't exist)." });
+    res
+      .status(500)
+      .json({ message: "Erreur serveur (utilisateur inexistant)." });
   }
 };
