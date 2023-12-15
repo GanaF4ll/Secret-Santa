@@ -31,14 +31,14 @@ exports.userLogin = async (req, res) => {
     const userData = {
       id: user._id,
       email: user.email,
-      role: user.role, // Assuming you have a 'role' property in your user schema
+      role: user.role,
     };
 
     const token = jwt.sign(userData, process.env.JWT_KEY, {
       expiresIn: "48h", // Token duration
     });
 
-    res.json({ token });
+    res.status(200).json({ token });
   } catch (error) {
     console.error(error);
     res

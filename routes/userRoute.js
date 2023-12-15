@@ -68,9 +68,9 @@ router.post("/user/login", userController.userLogin);
  *                          message: 'User deleted : ${user.email}'
  */
 //test route
-router.delete("/user/delete/:email", userController.userDelete);
+// router.delete("/user/delete/:email", userController.userDelete);
 // real route with token
-// router.delete("/user/delete/:email", verifyToken, userController.userDelete);
+router.delete("/user/delete/:email", verifyToken, userController.userDelete);
 // url = http://localhost:3000/user/delete/:email
 
 /**
