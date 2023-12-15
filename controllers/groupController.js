@@ -22,20 +22,33 @@ exports.createAGroup = async (req, res) => {
 
     try {
       const savedGroup = await newGroup.save();
-      // creates an InvitationSchema for each user_id in invitedUsers
+
+      // Creates an invitationSchema for each invitedUserId
       const invitations = await Promise.all(
         req.body.invitedUsers.map(async (invitedUserId) => {
           const invitedUser = await User.findById(invitedUserId);
 
           if (!invitedUser) {
+            // if user_id doesn't exist
             return null;
           }
+
+          const tokenPayload = {
+            invitedUserId,
+            group_id: savedGroup._id,
+          };
+
+          // Generates a token for each invitedUser
+          const token = jwt.sign(tokenPayload, process.env.JWT_KEY, {
+            expiresIn: "48h", // token duration
+          });
 
           const newInvitation = new Invitation({
             group_id: savedGroup._id,
             group_name: savedGroup.name,
             admin_id,
             invitedUsers: [invitedUserId],
+            token,
           });
 
           return newInvitation.save();
