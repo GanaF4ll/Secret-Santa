@@ -1,12 +1,10 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const user = require("userModel");
+const UserModel = require("./userModel");
 
 let groupSchema = new Schema({
-  user: {
-    id: { required, type: Schema.Types.ObjectId, ref: "User" },
-    email: { required, type: String, ref: "User" },
-  },
+  admin_id: { required: true, type: Schema.Types.ObjectId, ref: "User" },
+  invitedUsers: [{ type: Schema.Types.ObjectId, ref: "User" }],
 });
 
 const Group = mongoose.model("Group", groupSchema);
