@@ -5,3 +5,5 @@ const userController = require("../controllers/userController");
 const { verifyToken } = require("../middlewares/jwtMiddleware");
 
 router.post("/group/create/:user_id", groupController.createAGroup);
+
+module.exports = router;

@@ -1,3 +1,4 @@
+const Group = require("../models/groupModel");
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -21,12 +22,7 @@ exports.createAGroup = async (req, res) => {
     try {
       const savedGroup = await newGroup.save();
 
-      // generates a token for the admin
-      const token = jwt.sign({ user_id: admin_id }, process.env.JWT_KEY, {
-        expiresIn: "48h", // Token duration
-      });
-
-      res.status(201).json({ group: savedGroup, token });
+      res.status(201).json({ group: savedGroup });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Server Error" });
