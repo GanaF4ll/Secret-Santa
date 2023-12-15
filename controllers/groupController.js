@@ -170,3 +170,37 @@ exports.deleteGroup = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+exports.listInvitedUsers = async (req, res) => {
+  try {
+    const group = await Group.findById(req.params.groupId);
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    const invitedUserIds = group.invitedUsers.map((user) => user.toString());
+    res.status(200).json({ invitedUserIds });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+exports.listConfirmedUsers = async (req, res) => {
+  try {
+    const group = await Group.findById(req.params.groupId);
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    const confirmedUserIds = group.confirmedUsers.map((invitation) =>
+      invitation.toString()
+    );
+    res.status(200).json({ confirmedUserIds });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};

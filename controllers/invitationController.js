@@ -4,88 +4,85 @@ const Invitation = require("../models/invitationModel");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-// // Controller pour accepter une invitation
-// exports.acceptInvitation = async (req, res) => {
-//   try {
-//     const invitationId = req.params.invitationId;
-
-//     // Récupérer l'invitation
-//     const invitation = await Invitation.findById(invitationId);
-
-//     if (!invitation) {
-//       return res.status(404).json({ message: "Invitation non trouvée" });
-//     }
-
-//     // Mettre à jour l'invitation (supprimer l'invitation)
-//     await Invitation.findByIdAndRemove(invitationId);
-
-//     // Mettre à jour le groupe
-//     const groupId = invitation.group_id;
-//     const group = await Group.findById(groupId);
-
-//     if (!group) {
-//       return res.status(404).json({ message: "Groupe non trouvé" });
-//     }
-
-//     // Ajouter l'invité confirmé aux confirmedUsers
-//     group.confirmedUsers.push(invitation.invitedUsers[0]);
-
-//     // Sauvegarder les modifications apportées au groupe
-//     await group.save();
-
-//     res.status(200).json({ message: "Invitation acceptée avec succès" });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: "Server Error" });
-//   }
-// };
-
-// Controller pour accepter une invitation
 exports.acceptInvitation = async (req, res) => {
   try {
-    const invitationId = req.params.invitationId;
+    const token = req.headers["authorization"];
+    const decodedToken = jwt.decode(token);
 
-    // Récupérer l'invitation
-    const invitation = await Invitation.findById(invitationId);
+    const invitation = await Invitation.findOne({
+      token: token,
+      accepted: null, // Only process if the invitation is not already accepted or declined
+    });
 
     if (!invitation) {
-      return res.status(404).json({ message: "Invitation non trouvée" });
-    }
-
-    // Récupérer l'ID de l'utilisateur à partir du token
-    const userIdInToken = req.user.id;
-    console.log("ID reçu par le token:", userIdInToken);
-
-    // Vérifier si l'ID dans le token correspond à l'ID dans l'invitation
-    const invitedUserId = invitation.invitedUsers[0].toString(); // Convertir ObjectId en chaîne
-    console.log("ID dans invitedUsers:", invitedUserId);
-
-    if (userIdInToken !== invitedUserId) {
       return res
-        .status(403)
-        .json({ message: "Non autorisé à accepter cette invitation" });
+        .status(404)
+        .json({ message: "Invitation not found or already processed" });
     }
 
-    // Puts accepted to true
-    invitation.accepted = true;
-    await invitation.save();
+    // Check if the decoded ID is in the invitedUsers array
+    if (invitation.invitedUsers.includes(decodedToken.id)) {
+      // Update the invitation
+      invitation.accepted = true;
+      await invitation.save();
 
-    // Update the group
-    const groupId = invitation.group_id;
-    const group = await Group.findById(groupId);
+      // Update the group
+      const group = await Group.findById(invitation.group_id);
+      group.confirmedUsers.push(decodedToken.id);
+      group.invitedUsers = group.invitedUsers.filter(
+        (userId) => userId.toString() !== decodedToken.id.toString()
+      );
+      await group.save();
 
-    if (!group) {
-      return res.status(404).json({ message: "Groupe non trouvé" });
+      res.status(200).json({ message: "Invitation accepted successfully" });
+    } else {
+      res.status(403).json({
+        message: "Unauthorized access: invalid user for this invitation",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+exports.declineInvitation = async (req, res) => {
+  try {
+    const token = req.headers["authorization"];
+    const decodedToken = jwt.decode(token);
+
+    const invitation = await Invitation.findOne({
+      token: token,
+      accepted: null, // Only process if the invitation is not already accepted or declined
+    });
+
+    if (!invitation) {
+      return res
+        .status(404)
+        .json({ message: "Invitation not found or already processed" });
     }
 
-    group.confirmedUsers.push(invitation.invitedUsers[0]);
+    // Check if the decoded ID is in the invitedUsers array
+    if (invitation.invitedUsers.includes(decodedToken.id)) {
+      // Update the invitation as declined
+      invitation.accepted = false;
 
-    await group.save();
+      // Remove the invitation from the group
+      const group = await Group.findById(invitation.group_id);
+      group.invitedUsers = group.invitedUsers.filter(
+        (userId) => userId.toString() !== decodedToken.id.toString()
+      );
+      await group.save();
 
-    // Deletes the invitation
-    await Invitation.findByIdAndRemove(invitationId);
+      // Save the updated invitation
+      await invitation.save();
 
-    res.status(200).json({ message: "Invitation acceptée avec succès" });
+      res.status(200).json({ message: "Invitation declined" });
+    } else {
+      res.status(403).json({
+        message: "Unauthorized access: invalid user for this invitation",
+      });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });

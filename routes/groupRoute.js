@@ -204,3 +204,69 @@ router.delete(
   groupController.deleteGroup
 );
 module.exports = router;
+
+/**
+ * @swagger
+ * tags:
+ *   - name: group
+ *     description: Operations related to groups
+ * /group/allinvits/{groupId}:
+ *   get:
+ *     summary: List all invited user IDs for a group
+ *     tags:
+ *       - group
+ *     parameters:
+ *       - in: path
+ *         name: groupId
+ *         description: The ID of the group
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of invited user IDs
+ *         content:
+ *           application/json:
+ *             example:
+ *               invitedUserIds: ['user1', 'user2']
+ *       404:
+ *         description: Group not found
+ *       500:
+ *         description: Server Error
+ *
+ * /group/allconfirmed/{groupId}:
+ *   get:
+ *     summary: List all confirmed user IDs for a group
+ *     tags:
+ *       - group
+ *     parameters:
+ *       - in: path
+ *         name: groupId
+ *         description: The ID of the group
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of confirmed user IDs
+ *         content:
+ *           application/json:
+ *             example:
+ *               confirmedUserIds: ['user3', 'user4']
+ *       404:
+ *         description: Group not found
+ *       500:
+ *         description: Server Error
+ */
+
+router.get(
+  "/group/allinvits/:groupId",
+  // verifyToken,
+  groupController.listInvitedUsers
+);
+
+router.get(
+  "/group/allconfirmed/:groupId",
+  // verifyToken,
+  groupController.listConfirmedUsers
+);
