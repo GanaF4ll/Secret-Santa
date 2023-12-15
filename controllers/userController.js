@@ -1,7 +1,7 @@
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const dotenv = require("dotenv").config();
+require("dotenv").config();
 
 exports.userRegister = async (req, res) => {
   try {
