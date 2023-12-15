@@ -27,10 +27,10 @@ exports.createAGroup = async (req, res) => {
       role: "admin",
       invitedUserId: admin_id,
       group_id: savedGroup._id,
-      group_name: savedGroup.name, // Ajout de la propriété group_name
+      group_name: savedGroup.name,
     };
 
-    // Génère un token pour l'administrateur
+    // Generates a token for the admin
     const adminToken = jwt.sign(adminTokenPayload, process.env.JWT_KEY, {
       expiresIn: "48h",
     });
@@ -45,13 +45,12 @@ exports.createAGroup = async (req, res) => {
 
     const savedAdminInvitation = await adminInvitation.save();
 
-    // Crée des invitationSchema pour chaque invitedUserId
     const invitations = await Promise.all(
       req.body.invitedUsers.map(async (invitedUserId) => {
         const invitedUser = await User.findById(invitedUserId);
 
         if (!invitedUser) {
-          // Si user_id n'existe pas
+          // If user_id does not exist
           return null;
         }
 
@@ -60,16 +59,16 @@ exports.createAGroup = async (req, res) => {
           group_id: savedGroup._id,
         };
 
-        // Génère un token pour chaque invitedUser
+        // Generates a token for each invitedUser
         const token = jwt.sign(tokenPayload, process.env.JWT_KEY, {
           expiresIn: "48h",
         });
 
         const newInvitation = new Invitation({
-          group_id,
-          group_name: group.name, // Utilisez group.name plutôt que savedGroup.name
-          admin_id: req.user.id,
-          invitedUsers: [user_id],
+          group_id: savedGroup._id,
+          group_name: savedGroup.name,
+          admin_id,
+          invitedUsers: [invitedUserId],
           token,
         });
 
