@@ -6,30 +6,39 @@ const { verifyToken } = require("../middlewares/jwtMiddleware");
 
 /**
  * @swagger
+ * tags:
+ *   - name: group
+ *     description: Operations related to groups
  * /group/create:
- *  post:
- *      summary: Allows a user to create a group and add the ID of the people he wants to invite in it. Creates an Invitation model for each user_id in the InvitedUsers array
- *      requestBody:
- *          required: true
- *          content:
- *          application/json:
- *              example:
- *                  name: "Group1"
- *                  admin_id: taken from the token
- *                  InvitedUsers: [user_id1, user_id2]
- *                  Invitation: [group_id, group_name, admin_id, user_id, accepted: default->null]
- *      responses:
- *          201:
- *              description: Request successful.
- *              content:
- *                  application/json:
- *                      example:
- *                          message: 'json{group}''json{Invitation}'
+ *   post:
+ *     summary: Allows a user to create a group and add the ID of the people he wants to invite in it. Creates an Invitation model for each user_id in the InvitedUsers array.
+ *     tags:
+ *       - group
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             name: "Group1"
+ *             admin_id: taken from the token
+ *             InvitedUsers: [user_id1, user_id2]
+ *             Invitation: [group_id, group_name, admin_id, user_id, accepted: default->null]
+ *     responses:
+ *       201:
+ *         description: Request successful.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: 'json{group}''json{Invitation}'
  */
+
 router.post("/group/create", verifyToken, groupController.createAGroup);
 
 /**
  * @swagger
+ * tags:
+ *   - name: group
+ *     description: Operations related to groups
  * paths:
  *   /group/{group_id}/{admin_id}/invite:
  *     post:
@@ -38,6 +47,8 @@ router.post("/group/create", verifyToken, groupController.createAGroup);
  *         This endpoint allows an admin to create an invitation for a person.
  *         The `group_id` parameter represents the ID of the group, and the `admin_id` parameter represents the ID of the admin.
  *         The request should include the `user_id` in the request body to specify the user to be invited.
+ *       tags:
+ *         - group
  *       parameters:
  *         - in: path
  *           name: group_id
@@ -149,9 +160,14 @@ router.post(
 
 /**
  * @swagger
+ * tags:
+ *   - name: group
+ *     description: Operations related to groups
  * /group/delete/{group_id}:
  *   delete:
  *     summary: Permet à l'administrateur de supprimer un groupe.
+ *     tags:
+ *       - group
  *     parameters:
  *       - in: path
  *         name: group_id
