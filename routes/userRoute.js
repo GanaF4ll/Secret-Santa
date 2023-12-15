@@ -100,6 +100,7 @@ router.delete("/user/delete/:email", verifyToken, userController.userDelete);
  *           application/json:
  *             example:
  *               message: 'Email updated ${email}'
+ *
  */
 
 router.put("/user/update/:email", verifyToken, userController.userUpdate);

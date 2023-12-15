@@ -147,4 +147,44 @@ router.post(
   groupController.createInvitation
 );
 
+/**
+ * @swagger
+ * /group/delete/{group_id}:
+ *   delete:
+ *     summary: Permet à l'administrateur de supprimer un groupe.
+ *     parameters:
+ *       - in: path
+ *         name: group_id
+ *         required: true
+ *         description: L'ID du groupe à supprimer.
+ *         schema:
+ *           type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Groupe supprimé avec succès.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: 'Groupe supprimé avec succès'
+ *       403:
+ *         description: Non autorisé à supprimer ce groupe.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: 'Non autorisé à supprimer ce groupe'
+ *       500:
+ *         description: Erreur du serveur.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: 'Server Error'
+ */
+
+router.delete(
+  "/group/delete/:group_id",
+  verifyToken,
+  groupController.deleteGroup
+);
 module.exports = router;

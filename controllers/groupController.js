@@ -129,7 +129,7 @@ exports.createInvitation = async (req, res) => {
     const newInvitation = new Invitation({
       group_id,
       group_name: group.name,
-      admin_id: req.user.id, // Utilisez req.user.id comme admin_id
+      admin_id: req.user.id, // Uses req.user.id as admin_id
       invitedUsers: [user_id],
       token,
     });
@@ -137,6 +137,34 @@ exports.createInvitation = async (req, res) => {
     const savedInvitation = await newInvitation.save();
 
     res.status(201).json({ invitation: savedInvitation });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+exports.deleteGroup = async (req, res) => {
+  try {
+    const group_id = req.params.group_id;
+    const admin_id = req.user.id;
+
+    console.log("User ID from token:", admin_id);
+
+    // Checks if the user is the admin
+    const group = await Group.findOne({ _id: group_id, admin_id });
+
+    console.log("Group Admin ID:", group.admin_id);
+
+    if (!group) {
+      return res
+        .status(403)
+        .json({ message: "Non autorisé à supprimer ce groupe" });
+    }
+
+    // Deletes the group
+    await Group.findByIdAndDelete(group_id);
+
+    res.status(200).json({ message: "Groupe supprimé avec succès" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
