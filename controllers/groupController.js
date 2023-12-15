@@ -4,38 +4,6 @@ const Invitation = require("../models/invitationModel");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-// exports.createAGroup = async (req, res) => {
-//   try {
-//     const admin_id = req.user.id;
-//     const user = await User.findById(admin_id);
-
-//     if (!user) {
-//       res.status(404).json({ message: "Utilisateur non trouvé" });
-//       return;
-//     }
-
-//     const newGroup = new Group({
-//       admin_id,
-//       invitedUsers: [],
-//       ...req.body,
-//     });
-
-//     try {
-//       const savedGroup = await newGroup.save();
-
-//       res.status(201).json({ group: savedGroup });
-//     } catch (error) {
-//       console.error(error);
-//       res.status(500).json({ message: "Server Error" });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res
-//       .status(500)
-//       .json({ message: "Erreur serveur (utilisateur inexistant)." });
-//   }
-// };
-
 exports.createAGroup = async (req, res) => {
   try {
     const admin_id = req.user.id;
@@ -48,20 +16,18 @@ exports.createAGroup = async (req, res) => {
 
     const newGroup = new Group({
       admin_id,
-      invitedUsers: req.body.invitedUsers, // Utilisation des ID fournis dans le corps de la requête
+      invitedUsers: req.body.invitedUsers,
       name: req.body.name,
     });
 
     try {
       const savedGroup = await newGroup.save();
-
-      // Création des invitations pour chaque utilisateur invité
+      // creates an InvitationSchema for each user_id in invitedUsers
       const invitations = await Promise.all(
         req.body.invitedUsers.map(async (invitedUserId) => {
           const invitedUser = await User.findById(invitedUserId);
 
           if (!invitedUser) {
-            // Ignorer les utilisateurs inexistants
             return null;
           }
 

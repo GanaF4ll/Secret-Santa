@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const UserModel = require("./userModel");
 const GroupModel = require("./groupModel");
 
 let InvitationSchema = new Schema({
