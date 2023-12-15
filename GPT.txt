@@ -1,3 +1,4 @@
+#1
 est-ce que ce controller est correct ? => exports.userLogin = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
@@ -21,3 +22,79 @@ est-ce que ce controller est correct ? => exports.userLogin = async (req, res) =
       .json({ message: "An error occured during the connexion attempt" });
   }
 };
+
+
+#2
+j'ai ce model : 
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+const UserModel = require("./userModel");
+
+let groupSchema = new Schema({
+  admin_id: { required: true, type: Schema.Types.ObjectId, ref: "User" },
+  invitedUsers: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  name: { type: String, required: true },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+});
+
+const Group = mongoose.model("Group", groupSchema);
+module.exports = Group;
+
+
+ce controller : 
+exports.createAGroup = async (req, res) => {
+  try {
+    const admin_id = req.user.id;
+    const user = await User.findById(admin_id);
+
+    if (!user) {
+      res.status(404).json({ message: "Utilisateur non trouvé" });
+      return;
+    }
+
+    const newGroup = new Group({
+      admin_id,
+      invitedUsers: [],
+      ...req.body,
+    });
+
+    try {
+      const savedGroup = await newGroup.save();
+
+      res.status(201).json({ group: savedGroup });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server Error" });
+    }
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Erreur serveur (utilisateur inexistant)." });
+  }
+};
+
+et ce modèle : 
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+const UserModel = require("./userModel");
+const GroupModel = require("./groupModel");
+
+let InvitationSchema = new Schema({
+  group_id: { required: true, type: Schema.Types.ObjectId, ref: "Group" },
+  group_name: { required: true, type: String, ref: "Group" },
+  admin_id: { required: true, type: Schema.Types.ObjectId, ref: "Group" },
+  invitedUsers: [{ type: Schema.Types.ObjectId, ref: "Group" }],
+  accepted: { type: Boolean, default: null }, // 0 = declined; 1 = accepted
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+});
+
+const Invitation = mongoose.model("InvitationSchema", InvitationSchema);
+module.exports = Invitation;
+
+je veux que le controller createAgroup prenne les ID dans invitedUsers, et crée le model
+Invitation pour chaque ID dans le tableau newGroup.invitedUsers, il faut que le 
+newInvitation prenne aussi la valeur de newGroup.admin_id pour son admin_id pour chacun des Schema Invitation crée et pareil pour le group_name qui doit 
+avoir la valeur de newGroup.name
