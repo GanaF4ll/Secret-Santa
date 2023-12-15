@@ -9,7 +9,7 @@ const options = {
       description: "Manages users and groups, hopefully",
     },
   },
-  apis: ["./routes/userRoute.js"],
+  apis: ["./routes/userRoute.js", "./routes/groupRoute.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
