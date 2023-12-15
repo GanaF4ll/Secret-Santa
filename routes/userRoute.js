@@ -67,9 +67,7 @@ router.post("/user/login", userController.userLogin);
  *                      example:
  *                          message: 'User deleted : ${user.email}'
  */
-//test route
-// router.delete("/user/delete/:email", userController.userDelete);
-// real route with token
+
 router.delete("/user/delete/:email", verifyToken, userController.userDelete);
 // url = http://localhost:3000/user/delete/:email
 
@@ -104,10 +102,7 @@ router.delete("/user/delete/:email", verifyToken, userController.userDelete);
  *               message: 'Email updated ${email}'
  */
 
-// test route
-router.put("/user/update/:email", userController.userUpdate);
-// real route
-// router.put("/user/update/:email", verifyToken, userController.userUpdate);
+router.put("/user/update/:email", verifyToken, userController.userUpdate);
 // url = http://localhost:3000/user/update/:email
 
 module.exports = router;
