@@ -5,6 +5,41 @@ const groupController = require("../controllers/groupController");
 const userController = require("../controllers/userController");
 const invitationController = require("../controllers/invitationController");
 
+/**
+ * @swagger
+ * tags:
+ *   - name: santa
+ *     description: Operations related to Secret Santa
+ * /santa/launch/{groupId}:
+ *   post:
+ *     summary: Assign Secret Santas
+ *     tags:
+ *       - santa
+ *     parameters:
+ *       - name: groupId
+ *         in: path
+ *         description: The ID of the group for Secret Santa assignment
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: Secret Santas assigned successfully.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             message:
+ *               type: string
+ *               example: Secret Santas assigned successfully!
+ *       500:
+ *         description: Internal server error.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             error:
+ *               type: string
+ *               example: Internal server error
+ */
+
 router.post("/santa/launch/:groupId", async (req, res) => {
   const groupId = req.params.groupId;
 

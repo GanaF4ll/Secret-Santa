@@ -9,9 +9,9 @@ function shuffleArray(array) {
   }
 }
 
-// Fonction pour attribuer secrètement des "Secret Santas"
+// Attribuates a user_email to another one for secret santa
 async function assignSecretSantas(groupId) {
-  // Récupérer le groupe de la base de données
+  // Gets the group from the database
   const group = await Group.findById(groupId).populate("confirmedUsers");
 
   if (!group) {
@@ -21,22 +21,22 @@ async function assignSecretSantas(groupId) {
 
   const confirmedUsers = group.confirmedUsers;
 
-  // Vérifier s'il y a suffisamment de membres dans le groupe
+  // Verify if there is enough users in the group
   if (confirmedUsers.length < 2) {
     console.error("Le groupe doit avoir au moins deux membres");
     return;
   }
 
-  // Mélanger la liste des utilisateurs de manière aléatoire
+  // Randomly shuffles the user list
   shuffleArray(confirmedUsers);
 
-  // Assigner secrètement chaque membre à un autre participant
+  // Assigns each user to another one
   const assignments = confirmedUsers.map((user, index) => {
     const assignedTo = confirmedUsers[(index + 1) % confirmedUsers.length];
     return { user: user, assignedTo: assignedTo };
   });
 
-  // Afficher les attributions (à des fins de vérification)
+  // Logs the assignmets
   assignments.forEach((assignment) => {
     console.log(
       `${assignment.user.email} est le Secret Santa de ${assignment.assignedTo.email}`
@@ -44,6 +44,6 @@ async function assignSecretSantas(groupId) {
   });
 }
 
-// Exemple d'utilisation
-const groupId = "657ebd948859c48c263ada61";
-assignSecretSantas(groupId);
+module.exports = {
+  assignSecretSantas,
+};
