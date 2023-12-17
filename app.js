@@ -7,6 +7,7 @@ const port = 3000;
 const userRoute = require("./routes/userRoute");
 const groupRoute = require("./routes/groupRoute");
 const invitationRoute = require("./routes/invitationRoute");
+const santaRoute = require("./routes/santaRoute");
 
 mongoose.connect("mongodb://127.0.0.1:27017/SecretSanta");
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use("/", userRoute);
 app.use("/", groupRoute);
 app.use("/", invitationRoute);
+app.use("/", santaRoute);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.listen(port, () => {
